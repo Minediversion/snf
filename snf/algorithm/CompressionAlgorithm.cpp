@@ -2,17 +2,17 @@
 #include <filesystem>
 #include <fstream>
 
+#define wordAppearance 3 // How many times the word appears for it to compress it
+
 bool isFileValid(std::string);
+std::unordered_map<std::string, std::size_t> classifyWords(const std::string&);
 
 namespace fs = std::filesystem;
 
 int main() {
     // File preparation
-    /*
-    std::string txtFilePath; // C:\Users\marcr\CLionProjects\snf\test.txt
+    std::string txtFilePath;
     std::getline(std::cin, txtFilePath); // Get file path
-     */
-    std::string txtFilePath = R"(C:\Users\marcr\CLionProjects\snf\test.txt)"; // Test file path
 
     if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not en program
 
@@ -28,57 +28,30 @@ int main() {
         if(c == 'N') return 0;
         fs::remove(snfFilePath); //Deletes previous file
     }
-    std::fstream txtFile (txtFilePath, std::fstream::in); // Open file for reading
     std::ofstream snfFile (snfFilePath, std::ofstream::out); // Create file, opened for writing
 
     //------------------------------------------------------------------------------------------------------------------
-
-    // Classify words
-    std::string strBuf; // Create a buffer for the text file
-    std::unordered_map<std::string, std::size_t> words; // Create a map in order to classify words
-    while(txtFile){
-        txtFile >> strBuf; // Read from space to space of txtFile
-        // Delete non-alphanumeric characters from string classify
-        if(!isalpha(strBuf[strBuf.length()-1])) strBuf.erase(strBuf.length()-1, 1);
-        if(!isalpha(strBuf[0])) strBuf.erase(0, 1);
-        words[strBuf]++; // Count how many times strBuf appears in text
-    }
-    std::unordered_map<std::string, std::size_t> compWords; // Create vector to store words that appear more than once
-    std::size_t id = 0;
-    for(auto & word : words){
-        if(word.second >= 2) compWords[word.first] = id, id++; // Increase size of vector to add words
-    }
-    words.clear(); // Free up memory
-
+    std::unordered_map<std::string, std::size_t> compWords = classifyWords(txtFilePath);
     //------------------------------------------------------------------------------------------------------------------
 
     // Build compressed file
-    for(auto & word : compWords){
-        snfFile << std::to_string(word.second) << word.first << std::endl;
-    }
+    for(auto & word : compWords) snfFile << std::to_string(word.second) << word.first << std::endl; // Put at the start of the .snf file the ids
     snfFile << "*-*-*" << std::endl;
 
-    strBuf = "";
-    txtFile.close();
-    txtFile.open(txtFilePath, std::fstream::in);
+    std::string strBuf;
+    std::fstream txtFile (txtFilePath, std::fstream::in); // Open text file in read mode.
     while(txtFile){
         char nextChar = (char)txtFile.get();
         if(!iswalnum(nextChar)){
-            if(compWords.find(strBuf) != compWords.end()){
-                snfFile << compWords[strBuf] << nextChar;
-            }else{
-                snfFile << strBuf << nextChar;
-            }
+            // Check if is compressible
+            if(compWords.find(strBuf) != compWords.end()) snfFile << compWords[strBuf] << nextChar; // Replace it with the id of the string
+            else snfFile << strBuf << nextChar; // Leave it as is
             strBuf = "";
-        }else {
-            strBuf += nextChar;
-        }
+        }else strBuf += nextChar;
     }
-
-    // CLOSE AND REMOVE FILE IN ORDER FOR EASIER TESTING
+    // Close files to save memory
     snfFile.close();
-    //fs::remove(snfFilePath);
-
+    txtFile.close();
     return 0;
 }
 
@@ -97,9 +70,23 @@ bool isFileValid(std::string filePath){
     return false;
 }
 
-/*
- * TODO: Set up a txt compression algorithm.
- * TODO: Set up an app for the use of the .snf file.
- * TODO: Set up an app for the creation of .snf from .txt.
- * TEST
- * */
+// Classify words
+std::unordered_map<std::string, std::size_t> classifyWords(const std::string& txtFilePath){
+    std::fstream txtFile (txtFilePath, std::fstream::in); // Opening text file in read mode
+
+    std::string strBuf;
+    std::unordered_map<std::string, std::size_t> words; // Create a map in order to classify words
+    while(txtFile){
+        txtFile >> strBuf;
+        // Delete non-alphanumeric characters from string classify
+        if(!isalpha(strBuf[strBuf.length()-1])) strBuf.erase(strBuf.length()-1, 1);
+        if(!isalpha(strBuf[0])) strBuf.erase(0, 1);
+        words[strBuf]++;
+    }
+    std::unordered_map<std::string, std::size_t> compWords;
+    std::size_t id = 0;
+    for(auto & word : words) if(word.second >= wordAppearance) compWords[word.first] = id, id++; // Set ids for words that appear more than twice
+    txtFile.close(); // Free up memory
+    words.clear(); // Free up memory
+    return compWords;
+}
