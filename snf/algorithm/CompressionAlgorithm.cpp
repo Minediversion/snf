@@ -3,6 +3,7 @@
 #include <fstream>
 
 #define wordAppearance 3 // How many times the word appears for it to compress it
+#define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
 bool isFileValid(std::string);
 std::unordered_map<std::string, std::size_t> classifyWords(const std::string&);
@@ -14,7 +15,7 @@ int main() {
     std::string txtFilePath;
     std::getline(std::cin, txtFilePath); // Get file path
 
-    if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not en program
+    if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not end program
 
     std::size_t directory = txtFilePath.find_last_of('\\'); // Get last occurrence of \ to get directory
     std::string snfFilePath = txtFilePath.substr(0, directory+1)
@@ -36,7 +37,7 @@ int main() {
 
     // Build compressed file
     for(auto & word : compWords) snfFile << std::to_string(word.second) << word.first << std::endl; // Put at the start of the .snf file the ids
-    snfFile << "*-*-*" << std::endl;
+    snfFile << snfIdentifier << std::endl;
 
     std::string strBuf;
     std::fstream txtFile (txtFilePath, std::fstream::in); // Open text file in read mode.
