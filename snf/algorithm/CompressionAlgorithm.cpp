@@ -10,6 +10,8 @@ std::unordered_map<std::string, std::size_t> classifyWords(const std::string&);
 
 namespace fs = std::filesystem;
 
+//TODO: Make nums be able to be compressed
+
 int main() {
     // File preparation
     std::string txtFilePath;
@@ -33,6 +35,12 @@ int main() {
 
     //------------------------------------------------------------------------------------------------------------------
     std::unordered_map<std::string, std::size_t> compWords = classifyWords(txtFilePath);
+    if(compWords.empty()) {
+        std::cout << "Can't be compressed more" << std::endl;
+        snfFile.close();
+        fs::remove(snfFilePath);
+        return 0;
+    }
     //------------------------------------------------------------------------------------------------------------------
 
     // Build compressed file
@@ -41,8 +49,9 @@ int main() {
 
     std::string strBuf;
     std::fstream txtFile (txtFilePath, std::fstream::in); // Open text file in read mode.
-    while(txtFile){
-        char nextChar = (char)txtFile.get();
+    char nextChar;
+    while(txtFile.get(nextChar)){
+        std::cout << (int)nextChar << std::endl;
         if(!iswalnum(nextChar)){
             // Check if is compressible
             if(compWords.find(strBuf) != compWords.end()) snfFile << compWords[strBuf] << nextChar; // Replace it with the id of the string
