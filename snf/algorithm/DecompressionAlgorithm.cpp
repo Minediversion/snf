@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
@@ -12,10 +12,12 @@ namespace fs = std::filesystem;
 
 std::fstream snfFile;
 
+//TODO: Make nums be able to be decompressed
+
 int main(){
     // File preparation
-    std::string snfFilePath = R"(C:\Users\marcr\CLionProjects\snf\testD.snf)";
-    //std::getline(std::cin, snfFilePath); // Get file path
+    std::string snfFilePath;
+    std::getline(std::cin, snfFilePath); // Get file path
 
     if(!isFileValid(snfFilePath)) return 0; // Check if file is valid, if not end program
 
@@ -41,8 +43,8 @@ int main(){
     // Reconstruct txt file
     std::string strBuf;
     bool isText = false;
-    while(snfFile) {
-        char nextChar = (char) snfFile.get();
+    char nextChar;
+    while(snfFile.get(nextChar)) {
         if(!iswalnum(nextChar)){
             if(strBuf.length() > (std::size_t)std::floor(log10(wordsIds.size())+1) || strBuf.empty()){
                 txtFile << strBuf << nextChar;
@@ -109,8 +111,8 @@ std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string
     strBuf = "";
     std::size_t idBuf;
     bool numId = true;
-    while(snfFile) {
-        char nextChar = (char) snfFile.get();
+    char nextChar;
+    while(snfFile.get(nextChar)) {
         if(strBuf == snfIdentifier){
             break;
         }else if(isalpha(nextChar) && numId){
@@ -127,6 +129,3 @@ std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string
     }
     return wordsIds;
 }
-
-// TODO: Check if file was compressed, and if not remove file.
-// TODO: Check if nextChar is not empty
