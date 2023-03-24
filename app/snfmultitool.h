@@ -15,6 +15,9 @@ public:
     explicit SnFMultitool(QWidget *parent = nullptr);
     ~SnFMultitool() override;
 
+private slots:
+    void findFile();
+
 private:
     Ui::SnFMultitool *ui;
 };
