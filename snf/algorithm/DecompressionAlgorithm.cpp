@@ -1,7 +1,4 @@
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-#include <cmath>
+#include "DecompressionAlgorithm.h"
 
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
@@ -14,10 +11,12 @@ std::fstream snfFile;
 
 //TODO: Make nums be able to be decompressed
 
-int main(){
+snf::DecompressionAlgorithm::DecompressionAlgorithm()= default;
+
+int snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath) {
     // File preparation
-    std::string snfFilePath;
-    std::getline(std::cin, snfFilePath); // Get file path
+    //std::string snfFilePath;
+    //std::getline(std::cin, snfFilePath); // Get file path
 
     if(!isFileValid(snfFilePath)) return 0; // Check if file is valid, if not end program
 
@@ -71,7 +70,7 @@ int main(){
     txtFile.close();
     snfFile.close();
 
-    return 0;
+    return 1;
 }
 
 // Check whether file path is a valid .txt file

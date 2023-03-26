@@ -1,6 +1,4 @@
-#include <iostream>
-#include <filesystem>
-#include <fstream>
+#include "CompressionAlgorithm.h"
 
 #define wordAppearance 3 // How many times the word appears for it to compress it
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
@@ -12,10 +10,12 @@ namespace fs = std::filesystem;
 
 //TODO: Make nums be able to be compressed
 
-int main() {
+snf::CompressionAlgorithm::CompressionAlgorithm()= default;
+
+int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
     // File preparation
-    std::string txtFilePath;
-    std::getline(std::cin, txtFilePath); // Get file path
+    //std::string txtFilePath;
+    //std::getline(std::cin, txtFilePath); // Get file path
 
     if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not end program
 
@@ -51,7 +51,6 @@ int main() {
     std::fstream txtFile (txtFilePath, std::fstream::in); // Open text file in read mode.
     char nextChar;
     while(txtFile.get(nextChar)){
-        std::cout << (int)nextChar << std::endl;
         if(!iswalnum(nextChar)){
             // Check if is compressible
             if(compWords.find(strBuf) != compWords.end()) snfFile << compWords[strBuf] << nextChar; // Replace it with the id of the string
@@ -62,7 +61,7 @@ int main() {
     // Close files to save memory
     snfFile.close();
     txtFile.close();
-    return 0;
+    return 1;
 }
 
 //Check whether file path is a valid .txt file
