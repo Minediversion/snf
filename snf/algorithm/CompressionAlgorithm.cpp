@@ -3,21 +3,22 @@
 #define wordAppearance 3 // How many times the word appears for it to compress it
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
-bool isFileValid(std::string);
 std::unordered_map<std::string, std::size_t> classifyWords(const std::string&);
 
 namespace fs = std::filesystem;
 
 //TODO: Make nums be able to be compressed
 
-snf::CompressionAlgorithm::CompressionAlgorithm()= default;
+snf::CompressionAlgorithm::CompressionAlgorithm() {
+    snfFilePathCom = "";
+};
 
 int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
     // File preparation
     //std::string txtFilePath;
     //std::getline(std::cin, txtFilePath); // Get file path
 
-    if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not end program
+    //if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not end program
 
     std::size_t directory = txtFilePath.find_last_of('\\'); // Get last occurrence of \ to get directory
     std::string snfFilePath = txtFilePath.substr(0, directory+1)
@@ -27,8 +28,13 @@ int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
     if(fs::exists(snfFilePath)){ // Checks if there is already a compressed file
         //Check if user wants to overwrite file
         std::cout << "Do you want to overwrite existing .snf file? Y/N" << std::endl;
-        char c; std::cin >> c;
-        if(c == 'N') return 0;
+        not_valid_input:
+        std::string c; std::getline(std::cin, c);
+        if(c[0] == 'N') return 0;
+        else if(c[0] != 'Y') {
+            std::cout << "Response is not valid" << std::endl;
+            goto not_valid_input;
+        }
         fs::remove(snfFilePath); //Deletes previous file
     }
     std::ofstream snfFile (snfFilePath, std::ofstream::out); // Create file, opened for writing
@@ -42,6 +48,7 @@ int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
         return 0;
     }
     //------------------------------------------------------------------------------------------------------------------
+    snfFilePathCom = snfFilePath;
 
     // Build compressed file
     for(auto & word : compWords) snfFile << std::to_string(word.second) << word.first << std::endl; // Put at the start of the .snf file the ids
@@ -62,21 +69,6 @@ int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
     snfFile.close();
     txtFile.close();
     return 1;
-}
-
-//Check whether file path is a valid .txt file
-bool isFileValid(std::string filePath){
-    if(filePath.length()>=7) { //Checks if file has at least "Drive:/.txt"
-        if (filePath[1] != ':') std::cout << "Filepath is not a drive" << std::endl;  // Checks if Drive: exist
-        else if (filePath.substr(filePath.length() - 4, 4) != ".txt") std::cout << "File is not .txt" << std::endl; // Checks if file ends in .txt
-        else{
-            if(fs::exists(fs::path(filePath))){ // Checks if file exists
-                std::cout << "Valid file" << std::endl;
-                return true;
-            }else std::cout << "File doesn't exist" << std::endl;
-        }
-    }else std::cout << "Not a valid path" << std::endl;
-    return false;
 }
 
 // Classify words

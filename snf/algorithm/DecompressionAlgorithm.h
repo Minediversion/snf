@@ -8,9 +8,11 @@
 
 namespace snf {
     class DecompressionAlgorithm{
-    public:
-        static int decompressFile(const std::string&);
-        DecompressionAlgorithm();
+        public:
+            int decompressFile(const std::string&);
+            DecompressionAlgorithm();
+
+            std::string txtFilePathDecom;
     };
 }
 
