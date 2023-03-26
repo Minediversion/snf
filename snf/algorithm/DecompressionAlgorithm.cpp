@@ -1,11 +1,7 @@
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-#include <cmath>
+#include "DecompressionAlgorithm.h"
 
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
-bool isFileValid(std::string);
 std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string&);
 
 namespace fs = std::filesystem;
@@ -14,12 +10,16 @@ std::fstream snfFile;
 
 //TODO: Make nums be able to be decompressed
 
-int main(){
-    // File preparation
-    std::string snfFilePath;
-    std::getline(std::cin, snfFilePath); // Get file path
+snf::DecompressionAlgorithm::DecompressionAlgorithm() {
+    txtFilePathDecom = "";
+}
 
-    if(!isFileValid(snfFilePath)) return 0; // Check if file is valid, if not end program
+int snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath) {
+    // File preparation
+    //std::string snfFilePath;
+    //std::getline(std::cin, snfFilePath); // Get file path
+
+    //if(!isFileValid(snfFilePath)) return 0; // Check if file is valid, if not end program
 
     std::size_t directory = snfFilePath.find_last_of('\\'); // Get last occurrence of \ to get directory
     std::string txtFilePath = snfFilePath.substr(0, directory+1)
@@ -29,8 +29,13 @@ int main(){
     if(fs::exists(txtFilePath)){ // Checks if there is already a decompressed file
         //Check if user wants to overwrite file
         std::cout << "Do you want to overwrite existing .txt file? Y/N" << std::endl;
-        char c; std::cin >> c;
-        if(c == 'N') return 0;
+        not_valid_input:
+        std::string c; std::getline(std::cin, c);
+        if(c[0] == 'N') return 0;
+        else if(c[0] != 'Y') {
+            std::cout << "Response is not valid" << std::endl;
+            goto not_valid_input;
+        }
         fs::remove(txtFilePath); //Deletes previous file
     }
     std::ofstream txtFile (txtFilePath, std::ofstream::out);
@@ -39,7 +44,7 @@ int main(){
     std::unordered_map<std::size_t, std::string> wordsIds = getCompressionIds(snfFilePath);
     if(wordsIds.empty()) return 0;
     //------------------------------------------------------------------------------------------------------------------
-
+    snf::DecompressionAlgorithm::txtFilePathDecom = txtFilePath;
     // Reconstruct txt file
     std::string strBuf;
     bool isText = false;
@@ -71,22 +76,7 @@ int main(){
     txtFile.close();
     snfFile.close();
 
-    return 0;
-}
-
-// Check whether file path is a valid .txt file
-bool isFileValid(std::string filePath){
-    if(filePath.length()>=7) { //Checks if file has at least "Drive:/.snf"
-        if (filePath[1] != ':') std::cout << "Filepath is not a drive" << std::endl;  // Checks if Drive: exist
-        else if (filePath.substr(filePath.length() - 4, 4) != ".snf") std::cout << "File is not .snf" << std::endl; // Checks if file ends in .snf
-        else{
-            if(fs::exists(fs::path(filePath))){ // Checks if file exists
-                std::cout << "Valid file" << std::endl;
-                return true;
-            }else std::cout << "File doesn't exist" << std::endl;
-        }
-    }else std::cout << "Not a valid path" << std::endl;
-    return false;
+    return 1;
 }
 
 std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string& snfFilePath){
