@@ -16,7 +16,7 @@ public:
     ~SnFMultitool() override;
 
 private slots:
-    void findFile();
+    void workFile();
 
 private:
     Ui::SnFMultitool *ui;
