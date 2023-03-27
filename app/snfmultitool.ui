@@ -6,20 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>854</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SnFMultitool</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normalon>:/appIcon/resources/snfLogo.png</normalon>
+   </iconset>
+  </property>
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>130</y>
-     <width>251</width>
-     <height>20</height>
+     <x>9</x>
+     <y>129</y>
+     <width>341</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="inputMask">
@@ -32,29 +37,13 @@
     <string/>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="plainTextEdit">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>401</width>
-     <height>301</height>
-    </rect>
-   </property>
-   <property name="readOnly">
-    <bool>false</bool>
-   </property>
-   <property name="backgroundVisible">
-    <bool>false</bool>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>350</x>
      <y>130</y>
-     <width>21</width>
-     <height>23</height>
+     <width>28</width>
+     <height>24</height>
     </rect>
    </property>
    <property name="text">
@@ -67,6 +56,16 @@
    </property>
    <property name="flat">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="plainTextEdit">
+   <property name="geometry">
+    <rect>
+     <x>-17</x>
+     <y>-10</y>
+     <width>651</width>
+     <height>511</height>
+    </rect>
    </property>
   </widget>
  </widget>

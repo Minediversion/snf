@@ -13,14 +13,14 @@ int main(){
     std::string filePath;
     std::getline(std::cin, filePath);
     if(!isFileValid(filePath, ".txt")) return 0;
-    int output = compressionAlgorithm.compressFile(filePath);
-    if(output) std::cout << compressionAlgorithm.snfFilePathCom << std::endl;
+    std::string output = compressionAlgorithm.compressFile(filePath);
+    if(output.empty()) std::cout << compressionAlgorithm.snfFilePathCom << std::endl;
 
     filePath = "";
     std::getline(std::cin, filePath);
     if(!isFileValid(filePath, ".snf")) return 0;
     output = decompressionAlgorithm.decompressFile(filePath);
-    if(output) std::cout << decompressionAlgorithm.txtFilePathDecom << std::endl;
+    if(output.empty()) std::cout << decompressionAlgorithm.txtFilePathDecom << std::endl;
 
     return 0;
 }
