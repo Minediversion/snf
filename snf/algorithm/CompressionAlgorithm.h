@@ -8,10 +8,7 @@
 namespace snf {
     class CompressionAlgorithm{
         public:
-            int compressFile(const std::string&);
-            CompressionAlgorithm();
-
-            std::string snfFilePathCom;
+            static bool compressFile(const std::string&, const std::string&);
     };
 }
 

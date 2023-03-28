@@ -1,4 +1,5 @@
 #include "DecompressionAlgorithm.h"
+#include "snfmultitool.h"
 
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
@@ -10,41 +11,19 @@ std::fstream snfFile;
 
 //TODO: Make nums be able to be decompressed
 
-snf::DecompressionAlgorithm::DecompressionAlgorithm() {
-    txtFilePathDecom = "";
-}
-
-int snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath) {
+bool snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath, const std::string &txtFilePath) {
     // File preparation
-    //std::string snfFilePath;
-    //std::getline(std::cin, snfFilePath); // Get file path
-
-    //if(!isFileValid(snfFilePath)) return 0; // Check if file is valid, if not end program
-
-    std::size_t directory = snfFilePath.find_last_of('\\'); // Get last occurrence of \ to get directory
-    std::string txtFilePath = snfFilePath.substr(0, directory+1)
-                              + snfFilePath.substr(directory+1, snfFilePath.length()-4-directory)
-                              + "txt"; // Get the theoretical path were .txt would be
-
-    if(fs::exists(txtFilePath)){ // Checks if there is already a decompressed file
-        //Check if user wants to overwrite file
-        std::cout << "Do you want to overwrite existing .txt file? Y/N" << std::endl;
-        not_valid_input:
-        std::string c; std::getline(std::cin, c);
-        if(c[0] == 'N') return 0;
-        else if(c[0] != 'Y') {
-            std::cout << "Response is not valid" << std::endl;
-            goto not_valid_input;
-        }
-        fs::remove(txtFilePath); //Deletes previous file
-    }
     std::ofstream txtFile (txtFilePath, std::ofstream::out);
 
     //------------------------------------------------------------------------------------------------------------------
     std::unordered_map<std::size_t, std::string> wordsIds = getCompressionIds(snfFilePath);
-    if(wordsIds.empty()) return 0;
+    if(wordsIds.empty()) {
+        txtFile.close();
+        fs::remove(txtFilePath);
+        SnFMultitoolAddons::sendErrorMessage("File is corrupted");
+        return false;
+    }
     //------------------------------------------------------------------------------------------------------------------
-    snf::DecompressionAlgorithm::txtFilePathDecom = txtFilePath;
     // Reconstruct txt file
     std::string strBuf;
     bool isText = false;
@@ -76,7 +55,7 @@ int snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath) 
     txtFile.close();
     snfFile.close();
 
-    return 1;
+    return true;
 }
 
 std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string& snfFilePath){
@@ -91,7 +70,7 @@ std::unordered_map<std::size_t, std::string> getCompressionIds(const std::string
         if(strBuf == snfIdentifier) valid = true;
     }
     if(!valid) {
-        std::cout << "SNF file is corrupted" << std::endl;
+        //std::cout << "SNF file is corrupted" << std::endl;
         return wordsIds;
     }
 

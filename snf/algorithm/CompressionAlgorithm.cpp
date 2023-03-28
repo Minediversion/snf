@@ -1,4 +1,5 @@
 #include "CompressionAlgorithm.h"
+#include "snfmultitool.h"
 
 #define wordAppearance 3 // How many times the word appears for it to compress it
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
@@ -9,46 +10,20 @@ namespace fs = std::filesystem;
 
 //TODO: Make nums be able to be compressed
 
-snf::CompressionAlgorithm::CompressionAlgorithm() {
-    snfFilePathCom = "";
-};
-
-int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
+bool snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath, const std::string &snfFilePath) {
     // File preparation
-    //std::string txtFilePath;
-    //std::getline(std::cin, txtFilePath); // Get file path
-
-    //if(!isFileValid(txtFilePath)) return 0; // Check if file is valid, if not end program
-
-    std::size_t directory = txtFilePath.find_last_of('\\'); // Get last occurrence of \ to get directory
-    std::string snfFilePath = txtFilePath.substr(0, directory+1)
-            + txtFilePath.substr(directory+1, txtFilePath.length()-4-directory)
-            + "snf"; // Get the theoretical path were .snf would be
-
-    if(fs::exists(snfFilePath)){ // Checks if there is already a compressed file
-        //Check if user wants to overwrite file
-        std::cout << "Do you want to overwrite existing .snf file? Y/N" << std::endl;
-        not_valid_input:
-        std::string c; std::getline(std::cin, c);
-        if(c[0] == 'N') return 0;
-        else if(c[0] != 'Y') {
-            std::cout << "Response is not valid" << std::endl;
-            goto not_valid_input;
-        }
-        fs::remove(snfFilePath); //Deletes previous file
-    }
     std::ofstream snfFile (snfFilePath, std::ofstream::out); // Create file, opened for writing
 
     //------------------------------------------------------------------------------------------------------------------
     std::unordered_map<std::string, std::size_t> compWords = classifyWords(txtFilePath);
     if(compWords.empty()) {
-        std::cout << "Can't be compressed more" << std::endl;
+        //std::cout << "Can't be compressed more" << std::endl;
         snfFile.close();
         fs::remove(snfFilePath);
-        return 0;
+        SnFMultitoolAddons::sendErrorMessage("File can't be compressed more");
+        return false;
     }
     //------------------------------------------------------------------------------------------------------------------
-    snfFilePathCom = snfFilePath;
 
     // Build compressed file
     for(auto & word : compWords) snfFile << std::to_string(word.second) << word.first << std::endl; // Put at the start of the .snf file the ids
@@ -68,7 +43,8 @@ int snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath) {
     // Close files to save memory
     snfFile.close();
     txtFile.close();
-    return 1;
+
+    return true;
 }
 
 // Classify words
