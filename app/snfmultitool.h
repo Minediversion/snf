@@ -5,6 +5,9 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
+#include <QTableWidget>
+#include <QMenuBar>
+#include <QSpinBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SnFMultitool; }

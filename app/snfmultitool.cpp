@@ -13,7 +13,6 @@ SnFMultitool::SnFMultitool(QWidget *parent) :
     ui->setupUi(this);
     ui->pushButton->setIcon(QIcon(":/fileOpen/resources/file_open.png"));
     connect(ui->pushButton, SIGNAL(released()), this, SLOT(workFile()));
-    ui->plainTextEdit->hide();
 }
 
 SnFMultitool::~SnFMultitool() {
@@ -36,18 +35,28 @@ void SnFMultitool::workFile(){
     if(fileExtension == ".txt"){
         output = snf::CompressionAlgorithm::compressFile(formatedFilePath, convFilePath);
         if(!output) return;
-        SnFMultitoolAddons::sendSuccessMessage("File has been compressed successfully in \""+convFilePath+"\"");
+        SnFMultitoolAddons::sendSuccessMessage("File has been compressed successfully in\n\""+convFilePath+"\"");
     }else{
         output = snf::DecompressionAlgorithm::decompressFile(formatedFilePath, convFilePath);
         if(!output) return;
-        SnFMultitoolAddons::sendSuccessMessage("File has been decompressed successfully in \""+convFilePath+"\"");
-        //TODO: SHOW TEXT FILE IN APP
+        SnFMultitoolAddons::sendSuccessMessage("File has been decompressed successfully in\n\""+convFilePath+"\"");
+        std::fstream txtFile(convFilePath, std::fstream::in);
+        ui->plainTextEdit->clear();
+        ui->plainTextEdit->setPlainText(QString::fromStdString(std::string((std::istreambuf_iterator<char>(txtFile)),
+                                                                                    std::istreambuf_iterator<char>())));
+        ui->plainTextEdit->show();
     }
 }
 
 int main(int argc, char *argv[]){
     QApplication a(argc, argv);
     SnFMultitool snFMultitool;
+
+    auto file = QFile(":/darkMode/resources/style.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    auto stream = QTextStream(&file);
+    a.setStyleSheet(stream.readAll());
+
     snFMultitool.show();
 
     return a.exec();
