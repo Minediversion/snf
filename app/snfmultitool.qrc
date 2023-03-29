@@ -5,4 +5,7 @@
   <qresource prefix="appIcon">
     <file>resources/snfLogo.png</file>
   </qresource>
+  <qresource prefix="darkMode">
+    <file>resources/style.qss</file>
+  </qresource>
 </RCC>
