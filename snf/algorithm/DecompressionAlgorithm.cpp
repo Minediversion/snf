@@ -9,8 +9,6 @@ namespace fs = std::filesystem;
 
 std::fstream snfFile;
 
-//TODO: Make nums be able to be decompressed
-
 bool snf::DecompressionAlgorithm::decompressFile(const std::string &snfFilePath, const std::string &txtFilePath) {
     // File preparation
     std::ofstream txtFile (txtFilePath, std::ofstream::out);

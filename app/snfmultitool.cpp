@@ -21,6 +21,7 @@ SnFMultitool::~SnFMultitool() {
 
 void SnFMultitool::workFile(){
     QString filePath = QFileDialog::getOpenFileName(); // Get file chosen by user
+    if(filePath.isEmpty()) return;
     std::string fileExtension = isFileValid(filePath.toStdString()); // Check if is a valid path
     if(fileExtension.empty()) return;
     std::string convFileExtension = fileExtension==".txt"?".snf":".txt";
@@ -56,6 +57,7 @@ int main(int argc, char *argv[]){
     file.open(QFile::ReadOnly | QFile::Text);
     auto stream = QTextStream(&file);
     a.setStyleSheet(stream.readAll());
+    file.close();
 
     snFMultitool.show();
 
