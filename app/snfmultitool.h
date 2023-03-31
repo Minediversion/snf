@@ -18,6 +18,8 @@ class SnFMultitoolAddons{
         static void sendErrorMessage(const std::string& message);
         static void sendSuccessMessage(const std::string& message);
         static bool sendOverwriteMessage(const std::string &message);
+        static std::string checkConversion(const std::string &filePath, const std::string &fileExtension);
+        static std::string isFileValid(const std::string &filePath);
 };
 
 class SnFMultitool : public QWidget {
@@ -26,6 +28,7 @@ class SnFMultitool : public QWidget {
 public:
     explicit SnFMultitool(QWidget *parent = nullptr);
     ~SnFMultitool() override;
+    void workFileOpenSnf(const std::string &filePath);
 
 private slots:
     void workFile();

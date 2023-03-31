@@ -5,9 +5,6 @@
 
 namespace fs = std::filesystem;
 
-std::string isFileValid(const std::string&);
-std::string checkConversion(const std::string&, const std::string&);
-
 SnFMultitool::SnFMultitool(QWidget *parent) :
         QWidget(parent), ui(new Ui::SnFMultitool) {
     ui->setupUi(this);
@@ -22,14 +19,14 @@ SnFMultitool::~SnFMultitool() {
 void SnFMultitool::workFile(){
     QString filePath = QFileDialog::getOpenFileName(); // Get file chosen by user
     if(filePath.isEmpty()) return;
-    std::string fileExtension = isFileValid(filePath.toStdString()); // Check if is a valid path
+    std::string fileExtension = SnFMultitoolAddons::isFileValid(filePath.toStdString()); // Check if is a valid path
     if(fileExtension.empty()) return;
     std::string convFileExtension = fileExtension==".txt"?".snf":".txt";
     ui->lineEdit->setText(filePath); // Put it in the text display in the app
 
     std::string formatedFilePath = fs::path(filePath.toStdString()).make_preferred().string(); // Path is given with "/" but we want "\"
 
-    std::string convFilePath = checkConversion(formatedFilePath, convFileExtension);
+    std::string convFilePath = SnFMultitoolAddons::checkConversion(formatedFilePath, convFileExtension);
     if(convFilePath.empty()) return;
 
     bool output;
@@ -49,6 +46,34 @@ void SnFMultitool::workFile(){
     }
 }
 
+void SnFMultitool::workFileOpenSnf(const std::string &filePath){
+    std::string fileExtension = SnFMultitoolAddons::isFileValid(filePath); // Check if is a valid path
+    if(fileExtension.empty()) return;
+    std::string convFileExtension = fileExtension==".txt"?".snf":".txt";
+    ui->lineEdit->setText(QString::fromStdString(filePath)); // Put it in the text display in the app
+
+    std::string formatedFilePath = fs::path(filePath).make_preferred().string(); // Path is given with "/" but we want "\"
+
+    std::string convFilePath = SnFMultitoolAddons::checkConversion(formatedFilePath, convFileExtension);
+    if(convFilePath.empty()) return;
+
+    bool output;
+    if(fileExtension == ".txt"){
+        output = snf::CompressionAlgorithm::compressFile(formatedFilePath, convFilePath);
+        if(!output) return;
+        SnFMultitoolAddons::sendSuccessMessage("File has been compressed successfully in\n\""+convFilePath+"\"");
+    }else{
+        output = snf::DecompressionAlgorithm::decompressFile(formatedFilePath, convFilePath);
+        if(!output) return;
+        SnFMultitoolAddons::sendSuccessMessage("File has been decompressed successfully in\n\""+convFilePath+"\"");
+        std::fstream txtFile(convFilePath, std::fstream::in);
+        ui->plainTextEdit->clear();
+        ui->plainTextEdit->setPlainText(QString::fromStdString(std::string((std::istreambuf_iterator<char>(txtFile)),
+                                                                           std::istreambuf_iterator<char>())));
+        ui->plainTextEdit->show();
+    }
+}
+
 int main(int argc, char *argv[]){
     QApplication a(argc, argv);
     SnFMultitool snFMultitool;
@@ -59,12 +84,18 @@ int main(int argc, char *argv[]){
     a.setStyleSheet(stream.readAll());
     file.close();
 
+    if (QApplication::arguments().size() > 1) {
+        const std::string filename = QApplication::arguments().at(1).toStdString();
+        snFMultitool.workFileOpenSnf(filename);
+    }
     snFMultitool.show();
 
     return a.exec();
 }
 
-std::string checkConversion(const std::string &filePath, const std::string &fileExtension){
+
+// SnFMultitoolAddons QoL functions
+std::string SnFMultitoolAddons::checkConversion(const std::string &filePath, const std::string &fileExtension){
     std::size_t directory = filePath.find_last_of('\\'); // Get last occurrence of \ to get directory
     std::string conversionFilePath = filePath.substr(0, directory+1)
                               + filePath.substr(directory+1, filePath.length()-5-directory)
@@ -81,7 +112,7 @@ std::string checkConversion(const std::string &filePath, const std::string &file
     return conversionFilePath;
 }
 
-std::string isFileValid(const std::string &filePath){
+std::string SnFMultitoolAddons::isFileValid(const std::string &filePath){
     if(filePath.length()>=7) { //Checks if file has at least "Drive:/.snf"
         std::string fileExtension = filePath.substr(filePath.length() - 4, 4);
         if (filePath[1] != ':') SnFMultitoolAddons::sendErrorMessage("Filepath is not a drive");  // Checks if Drive: exist
@@ -97,8 +128,6 @@ std::string isFileValid(const std::string &filePath){
     return "";
 }
 
-
-// SnFMultitoolAddons QoL functions
 void SnFMultitoolAddons::sendErrorMessage(const std::string& message){
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/appIcon/resources/snfLogo.png"));
