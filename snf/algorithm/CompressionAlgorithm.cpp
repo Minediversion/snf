@@ -1,14 +1,12 @@
 #include "CompressionAlgorithm.h"
 #include "snfmultitool.h"
 
-#define wordAppearance 3 // How many times the word appears for it to compress it
+#define dWordAppearance 3 // How many times the word appears for it to compress it
 #define snfIdentifier "*-*-*" // How the file will be identified by the algorithm
 
 std::unordered_map<std::string, std::size_t> classifyWords(const std::string&);
 
 namespace fs = std::filesystem;
-
-//TODO: Make nums be able to be compressed
 
 bool snf::CompressionAlgorithm::compressFile(const std::string& txtFilePath, const std::string &snfFilePath) {
     // File preparation
@@ -60,10 +58,23 @@ std::unordered_map<std::string, std::size_t> classifyWords(const std::string& tx
         if(!isalpha(strBuf[0])) strBuf.erase(0, 1);
         words[strBuf]++;
     }
+    int count;
+    int wordAppearance = dWordAppearance;
+    do {
+        count = 0;
+        for (auto &word: words) {
+            if (word.second >= wordAppearance) count++;
+            if (count == 100) {
+                wordAppearance++;
+                break;
+            }
+        }
+    } while (count == 100);
+    wordAppearance--;
     std::unordered_map<std::string, std::size_t> compWords;
     std::size_t id = 0;
-    for(auto & word : words) if(word.second >= wordAppearance) compWords[word.first] = id, id++; // Set ids for words that appear more than twice
-    txtFile.close(); // Free up memory
-    words.clear(); // Free up memory
+    for(auto & word : words) if(word.second >= wordAppearance) if(word.first[0] != 0) compWords[word.first] = id, id++;// Set ids for words that appear multiple times
+    txtFile.close();
+    words.clear();
     return compWords;
 }
